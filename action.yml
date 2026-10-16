@@ -46,7 +46,7 @@ inputs:
     description: An xmlvalid API key; keep it in a secret.
     required: true
   api-url:
-    description: The API base URL (for a self-hosted install).
+    description: The API base URL.
     required: false
     default: https://xmlvalid.com/api/v1
   cli-version:

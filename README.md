@@ -1,7 +1,10 @@
 # xmlvalid GitHub Action
 
-Validates XML files in your repository against XSD 1.0, DTD or RelaxNG schemas with
-[xmlvalid.com](https://xmlvalid.com), and marks the failing lines in the pull request.
+Validates XML files and e-invoices in your repository with [xmlvalid.com](https://xmlvalid.com)
+and marks the failing lines in the pull request: XSD 1.0, DTD and RelaxNG schemas, your own
+Schematron rules, and the business rules of EN 16931, Peppol BIS and PINT, XRechnung,
+Factur-X / ZUGFeRD and national e-invoicing formats from the
+[schema catalog](https://xmlvalid.com/schemas).
 
 ```yaml
 name: XML
@@ -28,13 +31,16 @@ Pro: 10,000).
 |---|---|
 | `files` | files or globs, one per line or space-separated |
 | `urls` | public URLs, one per line |
-| `schema` | a catalog slug (`atom-1.0`) or a saved schema (`my-12`) |
+| `schema` | a catalog slug (`atom-1.0`), a saved schema (`my-12`), or `auto` for the profile each e-invoice names |
 | `schema-file` | an XSD, DTD or RelaxNG file in the repository |
 | `rules` | your own Schematron (`.sch`) file in the repository, run after the schema check |
 | `doctype` | `true` to validate against each document's DOCTYPE |
 | `fail-on-warnings` | `true` to fail on warnings |
+| `report` | also write an HTML report of every document to this path (keep it with `actions/upload-artifact`) |
+| `share` | `true` to also make a public link to the report, open for 30 days (Pro); in the job summary and the `report-url` output |
 | `api-key` | required |
-| `api-url` | for a self-hosted install |
+| `api-url` | the API base URL, default `https://xmlvalid.com/api/v1` |
+| `cli-version` | the `@xmlvalid/cli` version to run, default `1` |
 
 A schema that spans several files (imports, includes) is easiest to save once in the
 dashboard and use by its `my-…` name.

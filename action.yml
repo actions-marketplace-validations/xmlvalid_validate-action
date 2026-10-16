@@ -1,0 +1,97 @@
+name: xmlvalid
+description: Validate XML files against XSD, DTD or RelaxNG schemas and Schematron rules with xmlvalid.com, with annotations on the lines that fail.
+author: xmlvalid.com
+branding:
+  icon: check-square
+  color: blue
+
+inputs:
+  files:
+    description: Files or globs to validate, one per line or separated by spaces (*, **, ?, {a,b}).
+    required: false
+    default: ""
+  urls:
+    description: Public URLs to validate, one per line.
+    required: false
+    default: ""
+  schema:
+    description: A catalog slug (atom-1.0), one of your saved schemas (my-12), or auto for the profile each e-invoice names.
+    required: false
+    default: ""
+  schema-file:
+    description: An XSD, DTD or RelaxNG file in the repository, sent with each document.
+    required: false
+    default: ""
+  rules:
+    description: Your own Schematron (.sch) file in the repository, run after the schema check.
+    required: false
+    default: ""
+  doctype:
+    description: Validate against each document's own DOCTYPE.
+    required: false
+    default: "false"
+  fail-on-warnings:
+    description: Fail the step when a document has warnings.
+    required: false
+    default: "false"
+  report:
+    description: Also write an HTML report of every document to this path (keep it with actions/upload-artifact).
+    required: false
+    default: ""
+  share:
+    description: Also make a public link to the report of every document, open for 30 days (Pro); it is in the job summary and the report-url output.
+    required: false
+    default: "false"
+  api-key:
+    description: An xmlvalid API key; keep it in a secret.
+    required: true
+  api-url:
+    description: The API base URL (for a self-hosted install).
+    required: false
+    default: https://xmlvalid.com/api/v1
+  cli-version:
+    description: The @xmlvalid/cli version to run.
+    required: false
+    default: "1"
+
+outputs:
+  report-url:
+    description: The report link, when share is true and the link was made.
+    value: ${{ steps.validate.outputs.report-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Validate
+      id: validate
+      shell: bash
+      env:
+        XMLVALID_API_KEY: ${{ inputs.api-key }}
+        XMLVALID_API_URL: ${{ inputs.api-url }}
+        INPUT_FILES: ${{ inputs.files }}
+        INPUT_URLS: ${{ inputs.urls }}
+        INPUT_SCHEMA: ${{ inputs.schema }}
+        INPUT_SCHEMA_FILE: ${{ inputs.schema-file }}
+        INPUT_RULES: ${{ inputs.rules }}
+        INPUT_DOCTYPE: ${{ inputs.doctype }}
+        INPUT_FAIL_ON_WARNINGS: ${{ inputs.fail-on-warnings }}
+        INPUT_REPORT: ${{ inputs.report }}
+        INPUT_SHARE: ${{ inputs.share }}
+        CLI_VERSION: ${{ inputs.cli-version }}
+      run: |
+        # Inputs arrive as environment variables, never pasted into the script.
+        set -euo pipefail
+        args=(validate --format github)
+        read -r -d '' -a patterns <<< "$INPUT_FILES" || true
+        args+=(${patterns[@]+"${patterns[@]}"})
+        while IFS= read -r url; do
+          [ -n "$url" ] && args+=(--url "$url")
+        done <<< "$INPUT_URLS"
+        [ -n "$INPUT_SCHEMA" ] && args+=(--schema "$INPUT_SCHEMA")
+        [ -n "$INPUT_SCHEMA_FILE" ] && args+=(--schema-file "$INPUT_SCHEMA_FILE")
+        [ -n "$INPUT_RULES" ] && args+=(--rules "$INPUT_RULES")
+        [ "$INPUT_DOCTYPE" = "true" ] && args+=(--doctype)
+        [ "$INPUT_FAIL_ON_WARNINGS" = "true" ] && args+=(--fail-on-warnings)
+        [ -n "$INPUT_REPORT" ] && args+=(--report "$INPUT_REPORT")
+        [ "$INPUT_SHARE" = "true" ] && args+=(--share)
+        npx --yes "@xmlvalid/cli@${CLI_VERSION}" "${args[@]}"

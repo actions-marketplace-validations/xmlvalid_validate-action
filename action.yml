@@ -1,5 +1,5 @@
-name: xmlvalid
-description: Validate XML files against XSD, DTD or RelaxNG schemas and Schematron rules with xmlvalid.com, with annotations on the lines that fail.
+name: xmlvalid XML Validator
+description: Validate XML and e-invoices against XSD, DTD, RelaxNG and Schematron, with annotations on the lines that fail.
 author: xmlvalid.com
 branding:
   icon: check-square

@@ -23,6 +23,23 @@ jobs:
           api-key: ${{ secrets.XMLVALID_API_KEY }}
 ```
 
+E-invoices of several formats, each checked against the profile it names (Peppol, XRechnung,
+Factur-X…), with an HTML report kept as an artifact:
+
+```yaml
+      - uses: xmlvalid/validate-action@v1
+        with:
+          files: invoices/**/*.xml
+          schema: auto
+          report: xmlvalid-report.html
+          api-key: ${{ secrets.XMLVALID_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: xmlvalid-report
+          path: xmlvalid-report.html
+```
+
 Make a key under [Dashboard → API keys](https://xmlvalid.com/dashboard/api) and store it
 as the `XMLVALID_API_KEY` secret. Each file is one API validation (Free: 100 a month,
 Pro: 10,000).

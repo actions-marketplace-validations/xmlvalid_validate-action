@@ -51,6 +51,7 @@ Pro: 10,000).
 | `schema` | a catalog slug (`atom-1.0`), a saved schema (`my-12`), or `auto` for the profile each e-invoice names |
 | `schema-file` | an XSD, DTD or RelaxNG file in the repository |
 | `rules` | your own Schematron (`.sch`) file in the repository, run after the schema check |
+| `rules-version` | pins such as `peppol-bis-3-ubl@3.0.21`, one per line: fail when the business rules are at another release |
 | `doctype` | `true` to validate against each document's DOCTYPE |
 | `fail-on-warnings` | `true` to fail on warnings |
 | `report` | also write an HTML report of every document to this path (keep it with `actions/upload-artifact`) |

@@ -26,6 +26,10 @@ inputs:
     description: Your own Schematron (.sch) file in the repository, run after the schema check.
     required: false
     default: ""
+  rules-version:
+    description: Catalog rule set releases the check was written against, as rule-set@version (peppol-bis-3-ubl@3.0.21), one per line or separated by spaces or commas. The step fails when one of them has moved on, instead of reporting findings of rules that changed.
+    required: false
+    default: ""
   doctype:
     description: Validate against each document's own DOCTYPE.
     required: false
@@ -73,6 +77,7 @@ runs:
         INPUT_SCHEMA: ${{ inputs.schema }}
         INPUT_SCHEMA_FILE: ${{ inputs.schema-file }}
         INPUT_RULES: ${{ inputs.rules }}
+        INPUT_RULES_VERSION: ${{ inputs.rules-version }}
         INPUT_DOCTYPE: ${{ inputs.doctype }}
         INPUT_FAIL_ON_WARNINGS: ${{ inputs.fail-on-warnings }}
         INPUT_REPORT: ${{ inputs.report }}
@@ -90,6 +95,8 @@ runs:
         [ -n "$INPUT_SCHEMA" ] && args+=(--schema "$INPUT_SCHEMA")
         [ -n "$INPUT_SCHEMA_FILE" ] && args+=(--schema-file "$INPUT_SCHEMA_FILE")
         [ -n "$INPUT_RULES" ] && args+=(--rules "$INPUT_RULES")
+        read -r -d '' -a pins <<< "${INPUT_RULES_VERSION//,/ }" || true
+        for pin in ${pins[@]+"${pins[@]}"}; do args+=(--rules-version "$pin"); done
         [ "$INPUT_DOCTYPE" = "true" ] && args+=(--doctype)
         [ "$INPUT_FAIL_ON_WARNINGS" = "true" ] && args+=(--fail-on-warnings)
         [ -n "$INPUT_REPORT" ] && args+=(--report "$INPUT_REPORT")
